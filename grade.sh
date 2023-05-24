@@ -14,7 +14,7 @@ method1="filter"
 method2="merge"
 if [ -e "$file_path" ]; then
     echo "Java file '$file_path' exists."
-    #java "${file_path%.java}"  # Execute the compiled Java class
+    #java "${file_paht%.java}"  # Execute the compiled Java class
     if grep -q "class $class_name\b" "$file_path"; then
         echo "The class $class_name exists in $file_path."
         if grep -q "$method1" "$file_path"; then
@@ -36,15 +36,28 @@ else
     echo "Java file '$file_path' does not exist."
 fi
 
-cp -r $file_path grading-area
-javac -cp "$CPATH" TestListExamples.java grading-area/ListExamples.java
+cp -r $file_path grading-area/
+cp TestListExamples.java grading-area/
+cp -r lib/ grading-area/
+javac -cp "$CPATH" grading-area/TestListExamples.java grading-area/ListExamples.java
 if [[ $? -eq 0 ]]; then
     echo "the files compiled"
 else
     echo "the files did not compile"
 fi
-
-java TestListExamples grading-area/ListExamples 
+cd grading-area/
+java -cp "$CPATH" org.junit.runner.JUnitCore TestListExamples > output.txt
+#cat output.txt
+if [[ $? -eq 0 ]]; then
+    echo "You passed all the tests"
+    echo "Your grade is an A"
+else
+    tail -n +4 output.txt > formated.txt
+    echo "You failed some amount of tests"
+    echo "These are the tests you failed:"
+    cat formated.txt
+    echo "Your grade is an F"
+fi
 # Draw a picture/take notes on the directory structure that's set up after
 # getting to this point
 
